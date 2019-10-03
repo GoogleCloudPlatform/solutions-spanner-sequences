@@ -19,6 +19,7 @@ generators. These tests require a Cloud Spanner database.
         name STRING(64) NOT NULL,
         next_value INT64 NOT NULL)
         PRIMARY KEY (name)
+    )
     ```
 
 1.  Insert the following single row into the database:
