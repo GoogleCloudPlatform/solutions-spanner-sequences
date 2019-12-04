@@ -16,12 +16,7 @@
 package com.google.cloud.solutions.spanner;
 
 import com.google.cloud.spanner.DatabaseClient;
-import com.google.cloud.spanner.Key;
-import com.google.cloud.spanner.Mutation;
 import com.google.cloud.spanner.SpannerException;
-import com.google.cloud.spanner.Struct;
-import java.util.Collections;
-import java.util.NoSuchElementException;
 
 /**
  * Generates sequence values using a batch-request mechanism.
@@ -29,9 +24,8 @@ import java.util.NoSuchElementException;
  * <p>On {@link #getNext()}, a sequence value is issued from an internally-managed batch of values.
  * If the internal batch is exhausted, then get a new batch from the database.
  */
-public class BatchSequenceGenerator extends AbstractSequenceGenerator {
+public class BatchSequenceGenerator extends AbstractDatabaseSequenceGenerator {
 
-  private final DatabaseClient dbClient;
   private final long batchSize;
 
   private long next_value = Long.MAX_VALUE;
@@ -43,8 +37,7 @@ public class BatchSequenceGenerator extends AbstractSequenceGenerator {
    */
   public BatchSequenceGenerator(String sequenceName, long batchSize, DatabaseClient dbClient)
       throws SpannerException {
-    super(sequenceName);
-    this.dbClient = dbClient;
+    super(sequenceName, dbClient);
     this.batchSize = batchSize;
   }
 
@@ -60,34 +53,9 @@ public class BatchSequenceGenerator extends AbstractSequenceGenerator {
       // thread.
       return;
     }
-
-    next_value =
-        dbClient
-            .readWriteTransaction()
-            .run(
-                txn -> {
-                  Struct result =
-                      txn.readRow(
-                          SEQUENCES_TABLE,
-                          Key.of(sequenceName),
-                          Collections.singletonList(NEXT_VALUE_COLUMN));
-                  if (result == null) {
-                    throw new NoSuchElementException(
-                        "Sequence " + sequenceName + " not found in table " + SEQUENCES_TABLE);
-                  }
-                  long value = result.getLong(0);
-                  txn.buffer(
-                      Mutation.newUpdateBuilder(SEQUENCES_TABLE)
-                          .set(SEQUENCE_NAME_COLUMN)
-                          .to(sequenceName)
-                          .set(NEXT_VALUE_COLUMN)
-                          .to(value + batchSize)
-                          .build());
-                  return value;
-                });
+    next_value = getAndIncrementNextValueInDB(batchSize);
     last_value_in_batch = next_value + batchSize - 1;
   }
-
 
   /**
    * Returns the next value from this sequence, getting a new batch of values if necessary.
@@ -107,12 +75,9 @@ public class BatchSequenceGenerator extends AbstractSequenceGenerator {
   }
   // [END getNext]
 
-  /**
-   * Gets the next value. If the batch needs to be refreshed, then this uses a background thread.
-   * This is to be used when inside a transaction to avoid Nested Transaction issues.
-   */
   @Override
   public synchronized long getNextInBackground() throws Exception {
+    // If the batch needs to be refreshed, then this uses a background thread.
     if (next_value > last_value_in_batch) {
       return super.getNextInBackground();
     } else {

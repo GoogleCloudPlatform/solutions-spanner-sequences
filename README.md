@@ -2,7 +2,7 @@
 
 This repository contains example code for Sequence Generators in Google Cloud
 Spanner, to accompany the
-[Sequence Generation on Google Cloud Spanner solution](https://cloud.google.com/docs/tutorials#REPLACEME).
+[Sequence generation in Cloud Spanner solution](https://cloud.google.com/solutions/sequence-generation-in-cloud-spanner).
 
 ## How to use this example
 
@@ -52,11 +52,11 @@ generators. These tests require a Cloud Spanner database.
         -Dexec.args="INSTANCE_NAME DATABASE_NAME MODE ITERATIONS THREADS"
     ```
 
-    Or: build a deployable JAR containing all dependencies (for easy copying to
-    a remote machine), and execute the JAR:
+    Or: build a 'fat' deployable JAR containing all dependencies (for easy
+    copying to a remote machine), and execute the JAR:
 
     ```sh
-    mvn deploy
+    mvn package
     java -jar target/sequence-generator-1.0-SNAPSHOT-jar-with-dependencies.jar \
         INSTANCE_NAME DATABASE_NAME MODE ITERATIONS THREADS
     ```
@@ -65,8 +65,8 @@ generators. These tests require a Cloud Spanner database.
 
     *   INSTANCE\_NAME is your Cloud Spanner instance name
     *   DATABASE\_NAME is the name of your database
-    *   MODE is one of the sequence generator modes: _naive, sync, async_ or
-        _batch_. (see the solution document for the definition of these modes)
+    *   MODE is one of the sequence generator modes: _naive_, _sync_, _async_,
+        _batch_ or _asyncbatch_. (see the solution document for the definition of these modes)
     *   ITERATIONS - the number of sequence values to generate
     *   THREADS - the number of simultaneous threads requesting sequence values
 

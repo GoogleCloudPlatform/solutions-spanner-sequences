@@ -15,6 +15,12 @@
  */
 package com.google.cloud.solutions.spanner;
 
+import com.google.cloud.spanner.DatabaseClient;
+import com.google.cloud.spanner.Key;
+import com.google.cloud.spanner.Mutation;
+import com.google.cloud.spanner.Struct;
+import java.util.Collections;
+import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -25,7 +31,6 @@ public abstract class AbstractSequenceGenerator {
   static final String NEXT_VALUE_COLUMN = "next_value";
   static final String SEQUENCE_NAME_COLUMN = "name";
   protected final String sequenceName;
-  private static final ExecutorService executor = Executors.newCachedThreadPool();
 
   public AbstractSequenceGenerator(String sequenceName) {
     this.sequenceName = sequenceName;
@@ -36,6 +41,9 @@ public abstract class AbstractSequenceGenerator {
    */
   public abstract long getNext();
 
+  // [START getNextInBackground]
+  protected static final ExecutorService executor = Executors.newCachedThreadPool();
+
   /**
    * Gets the next value using a background thread - to be used when inside a transaction to avoid
    * Nested Transaction errors.
@@ -43,4 +51,5 @@ public abstract class AbstractSequenceGenerator {
   public long getNextInBackground() throws Exception {
     return executor.submit(this::getNext).get();
   }
+  // [END getNextInBackground]
 }

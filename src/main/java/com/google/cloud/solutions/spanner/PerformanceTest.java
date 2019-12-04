@@ -106,37 +106,37 @@ public class PerformanceTest {
                     }));
   }
 
-  private void runPerfTestAsync() {
-    AsynchronousSequenceGenerator generator =
-        new AsynchronousSequenceGenerator(SEQUENCE_NAME, dbClient);
-    runPerfTest(
-        () -> {
-            long next_value = generator.getNext();
-            dbClient
-                .readWriteTransaction()
-                .run(
-                    txn -> {
-                      // simulate transaction duration
-                      Thread.sleep(transactionDelayMillis);
-                      return null;
-                    });
-
-        });
-  }
-  private void runPerfTestBatch() {
-    BatchSequenceGenerator generator = new BatchSequenceGenerator(SEQUENCE_NAME, 50, dbClient);
+  private void runDbPerfTestWithGenerator(AbstractSequenceGenerator generator) {
     runPerfTest(
         () -> {
           long next_value = generator.getNext();
-           dbClient
-                .readWriteTransaction()
-                .run(
-                    txn -> {
-                      // simulate transaction duration
-                      Thread.sleep(transactionDelayMillis);
-                      return null;
-                    });
+          dbClient
+              .readWriteTransaction()
+              .run(
+                  txn -> {
+                    // simulate transaction duration
+                    Thread.sleep(transactionDelayMillis);
+                    return null;
+                  });
+
         });
+  }
+
+  private void runPerfTestAsync() {
+    AsynchronousSequenceGenerator generator =
+        new AsynchronousSequenceGenerator(SEQUENCE_NAME, dbClient);
+    runDbPerfTestWithGenerator(generator);
+  }
+
+  private void runPerfTestBatch() {
+    BatchSequenceGenerator generator = new BatchSequenceGenerator(SEQUENCE_NAME, 200, dbClient);
+    runDbPerfTestWithGenerator(generator);
+  }
+
+  private void runPerfTestAsyncBatch() {
+    AsyncBatchSequenceGenerator generator = new AsyncBatchSequenceGenerator(SEQUENCE_NAME, 200, 50,
+        dbClient);
+    runDbPerfTestWithGenerator(generator);
   }
 
   private void runPerfTest(Runnable r) {
@@ -236,6 +236,9 @@ public class PerformanceTest {
         case "batch":
           test.runPerfTestBatch();
           break;
+        case "asyncbatch":
+          test.runPerfTestAsyncBatch();
+          break;
         default:
           usage();
       }
@@ -250,7 +253,7 @@ public class PerformanceTest {
   private static void usage() {
     System.out.println(
         "Usage: PerformanceTest instance database TYPE iterations threads [txnDelay ms]");
-    System.out.println("Where TYPE is one of [naive, sync, async, batch]");
+    System.out.println("Where TYPE is one of [naive, sync, async, batch, asyncbatch]");
     System.exit(1);
   }
 }

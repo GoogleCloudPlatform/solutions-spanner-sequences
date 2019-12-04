@@ -72,7 +72,7 @@ public final class UsageExamples {
   }
   // [END syncUsage]
 
-  // [START asyncUsage
+  // [START asyncUsage]
   // Async Sequence generator created outside transaction as a long-lived object.
   private AsynchronousSequenceGenerator myAsyncSequence =
       new AsynchronousSequenceGenerator("my Sequence", dbClient);
@@ -94,7 +94,7 @@ public final class UsageExamples {
               }
             });
   }
-  // [END asyncUsage
+  // [END asyncUsage]
 
   // [START batchUsage]
   // Batch Sequence generator created outside transaction, as a long-lived object.
@@ -119,5 +119,29 @@ public final class UsageExamples {
             });
   }
   // [END batchUsage]
+
+  // [START asyncBatchUsage]
+  // Async Batch Sequence generator created outside transaction, as a long-lived object.
+  private AsyncBatchSequenceGenerator myAsyncBatchSequence =
+      new AsyncBatchSequenceGenerator("my Sequence", /* batchSize= */ 1000, 200, dbClient);
+
+  public void usingAsyncBatchSequenceGenerator() {
+    dbClient
+        .readWriteTransaction()
+        .run(
+            new TransactionCallable<Void>() {
+              @Nullable
+              @Override
+              public Void run(TransactionContext txn) {
+                // Get two sequence values
+                final long key1 = myBatchSequence.getNext();
+                final long key2 = myBatchSequence.getNext();
+                // Use the 2 key values in the transaction
+                // ...
+                return null;
+              }
+            });
+  }
+  // [END asyncBatchUsage]
 
 }

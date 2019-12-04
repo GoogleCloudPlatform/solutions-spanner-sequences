@@ -16,12 +16,7 @@
 package com.google.cloud.solutions.spanner;
 
 import com.google.cloud.spanner.DatabaseClient;
-import com.google.cloud.spanner.Key;
-import com.google.cloud.spanner.Mutation;
 import com.google.cloud.spanner.SpannerException;
-import com.google.cloud.spanner.Struct;
-import java.util.Collections;
-import java.util.NoSuchElementException;
 
 /**
  * Generates sequence values asynchronously to any current transactions
@@ -29,47 +24,22 @@ import java.util.NoSuchElementException;
  * <p>On {@link #getNext()} this class creates a new transaction to read and increment the sequence
  * value in the database
  */
-public class AsynchronousSequenceGenerator extends AbstractSequenceGenerator {
-
-  private final DatabaseClient dbClient;
+public class AsynchronousSequenceGenerator extends AbstractDatabaseSequenceGenerator {
 
   /** Construct with the given sequence name and database client. */
   public AsynchronousSequenceGenerator(String sequenceName, DatabaseClient dbClient) {
-    super(sequenceName);
-    this.dbClient = dbClient;
+    super(sequenceName, dbClient);
   }
 
   // [START getNext]
-
-  /** Returns the next value from this sequence.
+  /**
+   * Returns the next value from this sequence.
    *
    * Uses a separate transaction so must be used <strong>outside</strong>any other transactions.
    * See {@link #getNextInBackground()} for an alternative version that uses a background thread
    */
   public long getNext() throws SpannerException {
-    return dbClient
-        .readWriteTransaction()
-        .run(
-            txn -> {
-              Struct result =
-                  txn.readRow(
-                      SEQUENCES_TABLE,
-                      Key.of(sequenceName),
-                      Collections.singletonList(NEXT_VALUE_COLUMN));
-              if (result == null) {
-                throw new NoSuchElementException(
-                    "Sequence " + sequenceName + " not found in table " + SEQUENCES_TABLE);
-              }
-              long value = result.getLong(0);
-              txn.buffer(
-                  Mutation.newUpdateBuilder(SEQUENCES_TABLE)
-                      .set(SEQUENCE_NAME_COLUMN)
-                      .to(sequenceName)
-                      .set(NEXT_VALUE_COLUMN)
-                      .to(value + 1)
-                      .build());
-              return value;
-            });
+    return getAndIncrementNextValueInDB(1);
   }
   // [END getNext]
 
