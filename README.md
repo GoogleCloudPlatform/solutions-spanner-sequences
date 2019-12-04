@@ -1,8 +1,8 @@
 # Spanner Sequence Generator example code
 
-This repository contains example code for Sequence Generators in Google Cloud
-Spanner, to accompany the
-[Sequence generation in Cloud Spanner solution](https://cloud.google.com/solutions/sequence-generation-in-cloud-spanner).
+This repository contains example code to accompany the
+[Sequence generation in Cloud Spanner](https://cloud.google.com/solutions/sequence-generation-in-cloud-spanner)
+solution paper.
 
 ## How to use this example
 
@@ -16,16 +16,15 @@ generators. These tests require a Cloud Spanner database.
 
     ```sql
     CREATE TABLE sequences (
-        name STRING(64) NOT NULL,
-        next_value INT64 NOT NULL)
-        PRIMARY KEY (name)
-    )
+      name STRING(64) NOT NULL,
+      next_value INT64 NOT NULL,
+    ) PRIMARY KEY(name)
     ```
 
 1.  Insert the following single row into the database:
 
     ```sql
-    INSERT INTO sequences (name,next_value) VALUES ('my-sequence', 0);
+    INSERT INTO sequences (name, next_value) VALUES ('my-sequence', 0);
     ```
 
 1.  Clone the repository from GitHub
