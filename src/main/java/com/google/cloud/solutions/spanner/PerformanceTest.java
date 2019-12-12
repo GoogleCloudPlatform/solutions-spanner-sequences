@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Where:
  *
  * <ul>
- *   <li>TYPE is one of [naive, sync, async, batch]
+ *   <li>TYPE is one of [simple, sync, async, batch]
  *   <li>iterations is the number of sequence values to get
  *   <li>threads is the number of threads to use.
  *   <li>txnDelay is a delay in the transaction - to simulate the read/update latency of an actual
@@ -75,8 +75,8 @@ public class PerformanceTest {
     this.latencies = new long[numIterations];
   }
 
-  private void runPerfTestNaive() {
-    NaiveSequenceGenerator generator = new NaiveSequenceGenerator(SEQUENCE_NAME);
+  private void runPerfTestSimple() {
+    SimpleSequenceGenerator generator = new SimpleSequenceGenerator(SEQUENCE_NAME);
     runPerfTest(
         () ->
             dbClient
@@ -224,8 +224,8 @@ public class PerformanceTest {
       PerformanceTest test = new PerformanceTest(dbClient, iterations, threads, txnDelay);
 
       switch (type.toLowerCase()) {
-        case "naive":
-          test.runPerfTestNaive();
+        case "simple":
+          test.runPerfTestSimple();
           break;
         case "sync":
           test.runPerfTestSync();
@@ -253,7 +253,7 @@ public class PerformanceTest {
   private static void usage() {
     System.out.println(
         "Usage: PerformanceTest instance database TYPE iterations threads [txnDelay ms]");
-    System.out.println("Where TYPE is one of [naive, sync, async, batch, asyncbatch]");
+    System.out.println("Where TYPE is one of [simple, sync, async, batch, asyncbatch]");
     System.exit(1);
   }
 }

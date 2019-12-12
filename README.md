@@ -65,7 +65,7 @@ generators. These tests require a Cloud Spanner database.
 
     *   INSTANCE\_NAME is your Cloud Spanner instance name
     *   DATABASE\_NAME is the name of your database
-    *   MODE is one of the sequence generator modes: _naive_, _sync_, _async_,
+    *   MODE is one of the sequence generator modes: _simple_, _sync_, _async_,
         _batch_ or _asyncbatch_. (see the solution document for the definition of these modes)
     *   ITERATIONS - the number of sequence values to generate
     *   THREADS - the number of simultaneous threads requesting sequence values

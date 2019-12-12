@@ -27,11 +27,11 @@ import java.util.Collections;
 import java.util.NoSuchElementException;
 
 /** Sequence generator that reads and increments the sequence in a transaction. */
-public class NaiveSequenceGenerator {
+public class SimpleSequenceGenerator {
 
   private final String sequenceName;
 
-  public NaiveSequenceGenerator(String sequenceName) {
+  public SimpleSequenceGenerator(String sequenceName) {
     this.sequenceName = sequenceName;
   }
 

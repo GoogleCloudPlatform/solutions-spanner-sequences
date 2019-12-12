@@ -28,11 +28,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 // Use Silent because not all Mocks from base class are used.
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class NaiveSequenceGeneratorTest extends AbstractSequenceGeneratorTest {
+public class SimpleSequenceGeneratorTest extends AbstractSequenceGeneratorTest {
 
   @Test
   public void getNext() {
-    NaiveSequenceGenerator generator = new NaiveSequenceGenerator(SEQUENCE_NAME);
+    SimpleSequenceGenerator generator = new SimpleSequenceGenerator(SEQUENCE_NAME);
 
     // Setup next_value=22
     when(txContext.readRow(eq(SEQUENCES_TABLE), eq(Key.of(SEQUENCE_NAME)), anyList()))
@@ -45,7 +45,7 @@ public class NaiveSequenceGeneratorTest extends AbstractSequenceGeneratorTest {
 
   @Test
   public void getNextTwice() {
-    NaiveSequenceGenerator generator = new NaiveSequenceGenerator(SEQUENCE_NAME);
+    SimpleSequenceGenerator generator = new SimpleSequenceGenerator(SEQUENCE_NAME);
 
     // Setup next_value=22
     when(txContext.readRow(eq(SEQUENCES_TABLE), eq(Key.of(SEQUENCE_NAME)), anyList()))

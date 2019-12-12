@@ -27,11 +27,11 @@ public final class UsageExamples {
 
   private DatabaseClient dbClient;
 
-  // [START naiveUsage]
-  // Naive Sequence generator created outside transaction, eg as field.
-  private NaiveSequenceGenerator naiveSequence = new NaiveSequenceGenerator("my Sequence");
+  // [START simpleUsage]
+  // Simple Sequence generator created outside transaction, eg as field.
+  private SimpleSequenceGenerator simpleSequence = new SimpleSequenceGenerator("my Sequence");
 
-  public void usingNaiveSequenceGenerator() {
+  public void usingSimpleSequenceGenerator() {
     dbClient
         .readWriteTransaction()
         .run(
@@ -40,14 +40,14 @@ public final class UsageExamples {
               @Override
               public Void run(TransactionContext txn) {
                 // Get a sequence value
-                long nextValue = naiveSequence.getNext(txn);
+                long nextValue = simpleSequence.getNext(txn);
                 // Use nextValue in the transaction
                 // ...
                 return null;
               }
             });
   }
-  // [END naiveUsage]
+  // [END simpleUsage]
 
   // [START syncUsage]
   public void usingSynchronousSequenceGenerator() {
